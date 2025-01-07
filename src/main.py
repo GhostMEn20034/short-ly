@@ -1,9 +1,3 @@
-from fastapi import FastAPI
+from .core.app_factory import create_app
 
-app = FastAPI()
-
-
-@app.get("/healthcheck")
-async def healthcheck():
-    return {"status": "ok"}
-
+app = create_app()

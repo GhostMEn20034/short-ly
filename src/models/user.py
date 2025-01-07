@@ -1,6 +1,7 @@
 from datetime import datetime, date, UTC
+from typing import List
 from pydantic import EmailStr
-from sqlmodel import Field, Column, String, Date, TIMESTAMP, Integer
+from sqlmodel import Field, Column, String, Date, TIMESTAMP, Integer, Relationship
 
 from .base import BaseModel
 
@@ -31,3 +32,5 @@ class User(BaseModel, table=True):
             nullable=False
         )
     )
+
+    shortened_urls: List["ShortenedUrl"] = Relationship(back_populates="user", cascade_delete=True)
