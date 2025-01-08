@@ -1,24 +1,26 @@
 services:
   web:
     env_file:
-      - .env
-    container_name: fastapi_url_fold
+      - .env.test
     build:
       context: .
       dockerfile: DockerfileLocal
-    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+    command: ["sh", "-c", "pytest -v --tb=short --disable-warnings; tail -f /dev/null"]  # Keep the container running
     volumes:
       - .:/app
     ports:
       - "8000:8000"
     depends_on:
       - db
+    container_name: fastapi_url_fold_test
 
   db:
+    env_file:
+      - .env.test
     image: postgres:16.4-alpine
-    container_name: postgres_url_fold_db
+    container_name: postgres_url_fold_db_test
     volumes:
-      - postgres_url_fold_volume:/var/lib/postgresql/data/
+      - postgres_url_fold_volume_test:/var/lib/postgresql/data/
       - ./init-database.sh:/docker-entrypoint-initdb.d/init-database.sh
     environment:
       - POSTGRES_PASSWORD=${SUPER_USER_PWD}
@@ -26,14 +28,5 @@ services:
       - SQL_USER=${SQL_USER}
       - SQL_PASSWORD=${SQL_PASSWORD}
 
-  # Redis DB
-#  redis:
-#    image: redis:7
-#    container_name: redis_db_social_network
-#    volumes:
-#      - redis_social_network:/data
-
-
-
 volumes:
-  postgres_url_fold_volume:
+  postgres_url_fold_volume_test:
