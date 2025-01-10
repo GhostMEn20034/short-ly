@@ -2,7 +2,7 @@ from abc import abstractmethod, ABC
 from typing import Optional
 
 from src.models.user import User
-from src.repositories.base.abstract import AbstractGenericRepository
+from src.repositories.base.abstract_sql import AbstractGenericRepository
 
 
 class AbstractUserRepository(AbstractGenericRepository[User], ABC):

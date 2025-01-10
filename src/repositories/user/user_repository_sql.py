@@ -3,7 +3,7 @@ from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.models import User
-from src.repositories.base.implementation import GenericRepositoryImplementation
+from src.repositories.base.implementation_sql import GenericRepositoryImplementation
 from src.repositories.user.abstract import AbstractUserRepository
 
 

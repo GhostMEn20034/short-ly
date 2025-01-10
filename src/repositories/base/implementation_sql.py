@@ -5,7 +5,7 @@ from sqlmodel import select, and_
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.models.base import BaseModel
-from .abstract import AbstractGenericRepository
+from .abstract_sql import AbstractGenericRepository
 
 T = TypeVar("T", bound=BaseModel)
 

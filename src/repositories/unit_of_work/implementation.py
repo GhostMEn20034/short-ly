@@ -3,15 +3,18 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from .abstract import AbstractUnitOfWork
 from src.repositories.user.abstract import AbstractUserRepository
+from src.repositories.shortened_url.abstract_sql import AbstractURLRepositorySQL
 
 
 class UnitOfWork(AbstractUnitOfWork):
 
     def __init__(self, session: AsyncSession,
                  user_repository: AbstractUserRepository,
+                 url_repository: AbstractURLRepositorySQL
                  ):
         self._session = session
         self.user_repository = user_repository
+        self.url_repository = url_repository
 
     async def commit(self) -> None:
         """Saves all changes to the database."""
