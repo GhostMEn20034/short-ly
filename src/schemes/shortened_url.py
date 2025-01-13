@@ -1,16 +1,17 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel, constr, HttpUrl, field_validator
 from pydantic_core.core_schema import ValidationInfo
 
 from .consts import reserved_words
+from .pagination import PaginationResponse
 
 
 class CreateShortenedUrlSchema(BaseModel): # Request Body
     friendly_name: constr(max_length=40, strip_whitespace=True)
     is_short_code_custom: bool
-    short_code: constr(min_length=8, max_length=20, strip_whitespace=True) = None
+    short_code: Optional[constr(min_length=8, max_length=20, strip_whitespace=True)] = None
     long_url: HttpUrl
 
     @field_validator('short_code')
@@ -52,5 +53,12 @@ class CreateShortenedUrlResponseSchema(BaseModel):
 class UpdateShortenedUrlResponseSchema(CreateShortenedUrlResponseSchema):
     pass
 
+
 class ShortenedUrlDetailsResponseSchema(CreateShortenedUrlResponseSchema):
     pass
+
+
+class ShortenedUrlListResponseSchema(BaseModel):
+    items: List[CreateShortenedUrlResponseSchema]
+    pagination: PaginationResponse
+

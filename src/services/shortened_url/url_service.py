@@ -1,4 +1,5 @@
-from typing import Optional, List
+import math
+from typing import Optional, Sequence, Tuple
 
 from fastapi import HTTPException, status
 from pydantic import HttpUrl
@@ -10,6 +11,7 @@ from src.services.short_code_generator.abstract import AbstractShortCodeGenerato
 from src.core.exceptions.shortened_url import MaxRetriesExceeded
 from src.models.shortened_url import ShortenedUrl
 from src.models.user import User
+from src.schemes.pagination import PaginationParams, PaginationResponse
 
 
 class URLService(AbstractURLService):
@@ -72,8 +74,25 @@ class URLService(AbstractURLService):
 
         return created_shortened_url
 
-    async def get_shortened_url_list(self, user: User) -> List[ShortenedUrl]:
-        return await self._uow.url_repository.list(user_id=user.id)
+    async def get_shortened_url_list(self, user: User, pagination_params: PaginationParams) \
+                                                                   -> Tuple[Sequence[ShortenedUrl], PaginationResponse]:
+
+        items, total_count = await self._uow.url_repository.get_paginated_url_list(user.id, pagination_params)
+        total_pages = math.ceil(total_count / pagination_params.page_size)
+
+        # By default, pagination should always result
+        # in at least one "page" (even if it's empty), so this block of code ensures that total_pages is at least 1.
+        if total_pages < 1:
+            total_pages = 1
+
+        pagination_response = PaginationResponse(
+            current_page=pagination_params.page,
+            page_size=pagination_params.page_size,
+            total_pages=total_pages,
+            total_items=total_count,
+        )
+
+        return items, pagination_response
 
     async def get_shortened_url_details(self, short_code: str, owner: User) -> Optional[ShortenedUrl]:
         shortened_url = await self._uow.url_repository.get_by_short_code(short_code)
@@ -91,12 +110,12 @@ class URLService(AbstractURLService):
     async def get_long_url(self, short_code: str) -> HttpUrl:
         shortened_url = await self._uow.url_repository.get_by_short_code(short_code)
         if not shortened_url:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail={"short_code": f"Url with short code {short_code} did not exist"})
 
-        return shortened_url.original_url
+        return shortened_url.long_url
 
-    async def update_shortened_url(self, short_code: str, data: UpdateShortenedUrlSchema, owner: User) -> Optional[
-        ShortenedUrl]:
+    async def update_shortened_url(self, short_code: str, data: UpdateShortenedUrlSchema, owner: User) -> ShortenedUrl:
         shortened_url = await self._uow.url_repository.get_by_short_code(short_code)
         if not shortened_url:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)

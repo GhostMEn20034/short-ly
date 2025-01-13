@@ -3,7 +3,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from .abstract import AbstractUnitOfWork
 from src.repositories.user.abstract import AbstractUserRepository
-from src.repositories.shortened_url.abstract_sql import AbstractURLRepositorySQL
+from src.repositories.shortened_url.abstract import AbstractURLRepositorySQL
 
 
 class UnitOfWork(AbstractUnitOfWork):

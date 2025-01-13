@@ -1,10 +1,12 @@
 from abc import ABC, abstractmethod
-from typing import Optional, List
+from typing import Optional, List, Sequence, Tuple
 from pydantic import HttpUrl
 
 from src.models.user import User
 from src.models.shortened_url import ShortenedUrl
 from src.schemes.shortened_url import CreateShortenedUrlSchema, UpdateShortenedUrlSchema
+
+from src.schemes.pagination import PaginationParams, PaginationResponse
 
 
 class AbstractURLService(ABC):
@@ -15,7 +17,8 @@ class AbstractURLService(ABC):
 
 
     @abstractmethod
-    async def get_shortened_url_list(self, user: User) -> List[ShortenedUrl]:
+    async def get_shortened_url_list(self, user: User, pagination_params: PaginationParams) \
+                                                                  -> Tuple[Sequence[ShortenedUrl], PaginationResponse]:
         pass
 
     @abstractmethod

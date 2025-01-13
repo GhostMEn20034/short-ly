@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from src.repositories.shortened_url.abstract_sql import AbstractURLRepositorySQL
+from src.repositories.shortened_url.abstract import AbstractURLRepositorySQL
 from src.repositories.user.abstract import AbstractUserRepository
 
 

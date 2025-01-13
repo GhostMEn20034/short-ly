@@ -27,13 +27,14 @@ services:
       - SQL_PASSWORD=${SQL_PASSWORD}
 
   # Redis DB
-#  redis:
-#    image: redis:7
-#    container_name: redis_db_social_network
-#    volumes:
-#      - redis_social_network:/data
+  redis:
+    image: redis:7.4.2-alpine
+    container_name: redis_db_url_fold
+    volumes:
+      - redis_url_fold:/data
 
 
 
 volumes:
   postgres_url_fold_volume:
+  redis_url_fold:
