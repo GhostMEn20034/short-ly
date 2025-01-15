@@ -1,7 +1,7 @@
 reserved_words = {
     # System Reserved Words
     "app", "api", "admin", "dashboard", "login", "signup", "settings",
-    "help", "about", "terms", "privacy", "contact", "shorten",
+    "help", "about", "terms", "privacy", "contact", "shorten", "healthcheck",
 
     # HTTP Verbs
     "get", "post", "put", "delete", "patch", "head", "options",

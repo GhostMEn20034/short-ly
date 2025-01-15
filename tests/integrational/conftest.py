@@ -17,8 +17,8 @@ from src.utils.password_utils import hash_password
 from src.schemes.auth.token_data import AuthTokens
 from src.services.cache.cache_stub import CacheServiceStub
 
-
 engine = create_async_engine(os.getenv("DB_CONNECTION_STRING"), echo=True, poolclass=NullPool)
+
 
 @pytest.fixture(scope="session")
 async def async_db_engine():
@@ -71,7 +71,7 @@ async def async_client(app) -> AsyncGenerator[AsyncClient, None]:
     async with AsyncClient(
             transport=ASGITransport(app=app),
             base_url="http://test",
-         ) as ac:
+    ) as ac:
         yield ac
 
 
@@ -83,11 +83,13 @@ def event_loop():
     yield loop
     loop.close()
 
+
 # ↓ For Providing test data ↓
 
 @pytest.fixture(scope='session')
 async def test_user_password() -> str:
     return "123456tt"
+
 
 @pytest.fixture(scope="function")
 async def user(async_db, test_user_password) -> User:
@@ -102,6 +104,27 @@ async def user(async_db, test_user_password) -> User:
     await async_db.commit()
 
     return user
+
+
+@pytest.fixture(scope="function")
+async def second_user(async_db) -> User:
+    """
+    Fixture to provide a second user
+    (used for scenarios where you need to verify that a user cannot perform actions
+    on items that belong to another user)
+    """
+    user = User(
+        email="newuser1234@test.com",
+        first_name="John",
+        last_name="Doe",
+        password=hash_password("abcd1234"),
+    )
+
+    async_db.add(user)
+    await async_db.commit()
+
+    return user
+
 
 @pytest.fixture(scope="function")
 async def tokens(user, async_db, async_client, test_user_password) -> AuthTokens:

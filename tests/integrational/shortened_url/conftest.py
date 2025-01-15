@@ -36,3 +36,19 @@ async def prepopulated_urls(async_db: AsyncSession, user: User) -> List[Shortene
 
 
     return [twitch_url, youtube_url]
+
+
+@pytest.fixture(scope='function')
+async def prepopulated_url_for_second_user(async_db: AsyncSession, second_user: User) -> ShortenedUrl:
+    some_url = ShortenedUrl(
+        friendly_name="Some wierd URL",
+        is_short_code_custom=True,
+        short_code="wierd-url",
+        long_url="https://www.twitch.tv/",
+        user_id=second_user.id,
+    )
+
+    async_db.add(some_url)
+    await async_db.commit()
+
+    return some_url
