@@ -1,5 +1,6 @@
 import random
 import string
+from typing import Generator
 
 from .abstract import AbstractShortCodeGenerator
 from src.core.exceptions.shortened_url import MaxRetriesExceeded
@@ -14,7 +15,7 @@ class ShortCodeGenerator(AbstractShortCodeGenerator):
         s = string.ascii_lowercase + string.digits
         return ''.join(random.sample(s, code_length))
 
-    def generate_short_code(self, code_length: int, max_retries: int) -> str:
+    def generate_short_code(self, code_length: int, max_retries: int) -> Generator[str, None, None]:
         """
         Generates short codes iteratively.
 

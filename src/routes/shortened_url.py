@@ -9,7 +9,7 @@ from src.models.user import User
 from src.schemes.shortened_url import (
     CreateShortenedUrlResponseSchema, CreateShortenedUrlSchema,
     UpdateShortenedUrlResponseSchema, UpdateShortenedUrlSchema,
-    ShortenedUrlDetailsResponseSchema, ShortenedUrlListResponseSchema
+    ShortenedUrlDetailsResponseSchema, ShortenedUrlListResponseSchema,
 )
 from src.schemes.pagination import PaginationParams
 from src.services.shortened_url.abstract_url_service import AbstractURLService

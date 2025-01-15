@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: DockerfileLocal
-    command: ["sh", "-c", "pytest -v --tb=short --disable-warnings; tail -f /dev/null"]  # Keep the container running
+    command: tail -f /dev/null  # Keep the container running
     volumes:
       - .:/app
     ports:
