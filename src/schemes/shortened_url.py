@@ -1,6 +1,6 @@
+import re
 from datetime import datetime
 from typing import Optional, List
-
 from pydantic import BaseModel, constr, HttpUrl, field_validator
 from pydantic_core.core_schema import ValidationInfo
 
@@ -22,6 +22,7 @@ class CreateShortenedUrlSchema(BaseModel): # Request Body
         if is_short_code_custom:
             cls._validate_short_code_presence(value)
             cls._validate_short_code_reserved(value)
+            cls._validate_short_code_format(value)
 
         return value
 
@@ -36,6 +37,14 @@ class CreateShortenedUrlSchema(BaseModel): # Request Body
             raise ValueError(
                 f"The short code '{value}' is reserved and cannot be used. Please choose a different short code.")
 
+    @classmethod
+    def _validate_short_code_format(cls, value: str):
+        """Ensure the short code contains only allowed characters"""
+        if not re.fullmatch(r"^[A-Za-z0-9\-]+$", value):
+            raise ValueError(
+                f"The short code '{value}' contains invalid characters. "
+                "Only letters, digits, and '-' are allowed."
+            )
 
 class UpdateShortenedUrlSchema(BaseModel): # Request Body
     friendly_name: constr(max_length=40, strip_whitespace=True)
