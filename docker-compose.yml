@@ -33,8 +33,6 @@ services:
     volumes:
       - redis_url_fold:/data
 
-
-
 volumes:
   postgres_url_fold_volume:
   redis_url_fold:
