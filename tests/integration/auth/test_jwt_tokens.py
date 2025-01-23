@@ -65,7 +65,15 @@ class TestJWTAuth:
         response = await async_client.post("/api/v1/auth/token/refresh", json=refresh_token_data.model_dump())
 
         assert response.status_code == status.HTTP_200_OK
-        assert isinstance(response.json(), str)  # Ensure the response is a string token
+        # Parse response JSON
+        response_data = response.json()
+
+        # Assert the keys and their types
+        assert "access_token" in response_data
+        assert "refresh_token" in response_data
+        assert isinstance(response_data["access_token"], str)
+        assert isinstance(response_data["refresh_token"], str)
+
 
     @pytest.mark.asyncio
     async def test_refresh_token_invalid(self, async_client: AsyncClient, async_db: AsyncSession):

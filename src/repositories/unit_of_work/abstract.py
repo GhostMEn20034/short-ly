@@ -7,6 +7,9 @@ from src.repositories.user.abstract import AbstractUserRepository
 class AbstractUnitOfWork(ABC):
     user_repository: AbstractUserRepository
     url_repository: AbstractURLRepositorySQL
+    @abstractmethod
+    async def start(self) -> None:
+        pass
 
     @abstractmethod
     async def commit(self) -> None:

@@ -6,7 +6,7 @@ class JWTHandlerConfig:
     algorithm, expiration times for access and refresh tokens.
     """
     def __init__(self, secret_key: str, algorithm: str = "HS256",
-                 access_token_expire_minutes: int = 30,
+                 access_token_expire_minutes: int = 20, # Default: 20 min
                  refresh_token_expire_minutes: int = 1440):  # Default: 1 day
         """
         Initializes the JWTHandlerConfig with the specified settings.

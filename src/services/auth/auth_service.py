@@ -119,3 +119,24 @@ class AuthService(AbstractAuthService):
             payload = {"id": user.id}
 
             return self._jwt_handler.create_access_token(payload)
+
+    async def refresh_both_tokens(self, refresh_token: str) -> AuthTokens:
+        token_data = self._decode_token(refresh_token, token_type='refresh')
+
+        async with self._uow:
+            user = await self._uow.user_repository.get_by_id(token_data.id)
+
+            if user is None:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Could not find user",
+                )
+
+        payload = {"id": user.id}
+        access_token = self._jwt_handler.create_access_token(payload.copy())
+        refresh_token = self._jwt_handler.create_refresh_token(payload.copy())
+
+        return AuthTokens(
+            access_token=access_token,
+            refresh_token=refresh_token,
+        )

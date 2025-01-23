@@ -19,3 +19,8 @@ class AbstractAuthService(ABC):
     @abstractmethod
     async def refresh_access_token(self, refresh_token: str) -> str:
         pass
+
+    @abstractmethod
+    async def refresh_both_tokens(self, refresh_token: str) -> AuthTokens:
+        """Refresh both refresh and access tokens"""
+        pass

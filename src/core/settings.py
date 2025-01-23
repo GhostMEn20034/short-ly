@@ -1,5 +1,5 @@
 from typing import Optional, List
-from pydantic import constr, field_validator, model_validator
+from pydantic import constr
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
