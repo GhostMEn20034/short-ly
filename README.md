@@ -10,7 +10,7 @@
 - [x] A public API that redirects to a long URL using a short code.
 - [ ] QR codes with encoded shortened URLs
 - [ ] Analytics
-  - [ ] Top performing Date ( The date when the user had the most clicks and scans ) 
+  - [ ] Top performing Date ( The date when the user's urls had the most clicks and scans ) 
   - [ ] Clicks + scans by device
   - [ ] Clicks + scans over time
   - [ ] Top-Performing Location (The location with the highest number of scans)

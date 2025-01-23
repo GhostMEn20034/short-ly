@@ -5,7 +5,8 @@ from fastapi import HTTPException, status
 from pydantic import HttpUrl
 
 from .abstract_url_service import AbstractURLService
-from src.schemes.shortened_url import CreateShortenedUrlSchema, UpdateShortenedUrlSchema
+from ...schemes.shortened_url.request_bodies.update import UpdateShortenedUrlSchema
+from src.schemes.shortened_url.request_bodies.create import CreateShortenedUrlRequestBody
 from src.repositories.unit_of_work.abstract import AbstractUnitOfWork
 from src.services.short_code_generator.abstract import AbstractShortCodeGenerator
 from src.core.exceptions.shortened_url import MaxRetriesExceeded
@@ -36,7 +37,7 @@ class URLService(AbstractURLService):
             if not exists:
                 return generated_short_code
 
-    async def create_shortened_url(self, data: CreateShortenedUrlSchema, owner: User) -> ShortenedUrl:
+    async def create_shortened_url(self, data: CreateShortenedUrlRequestBody, owner: User) -> ShortenedUrl:
         """
         Creates shortened url using given data
         returns created shortened url if everything is fine.

@@ -22,7 +22,7 @@ class UserCreate(BaseModel):
     @field_validator('password2')
     def passwords_match(cls, value, info: ValidationInfo):
         """Ensure both passwords match."""
-        password1 = info.data["password1"]  # Use the new approach to get value
+        password1 = info.data.get("password1")  # Use the new approach to get value
         if password1 is None or value != password1:
             raise ValueError('Passwords do not match')
         return value

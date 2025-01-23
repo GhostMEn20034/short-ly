@@ -1,9 +1,12 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 from .containers import Container
 from src.routes.auth import router as auth_router
 from src.routes.user import router as user_router
 from src.routes.shortened_url import router as shortened_url_router
 from src.routes.public_routes import router as router_with_public_endpoints
+from .settings import settings
 
 
 def include_healthcheck(app: FastAPI):
@@ -11,6 +14,14 @@ def include_healthcheck(app: FastAPI):
     async def healthcheck():
         return {"status": "ok"}
 
+def include_middlewares(app: FastAPI):
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.CORS_ALLOWED_ORIGINS,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 def create_app() -> FastAPI:
     api_v1_prefix = "/api/v1"
@@ -27,6 +38,8 @@ def create_app() -> FastAPI:
 
     app = FastAPI()
     app.container = container
+    
+    include_middlewares(app)
 
     include_healthcheck(app)
     app.include_router(router_with_public_endpoints)

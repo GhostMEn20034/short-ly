@@ -1,14 +1,13 @@
 import re
-from datetime import datetime
-from typing import Optional, List
+from typing import Optional
+
 from pydantic import BaseModel, constr, HttpUrl, field_validator
 from pydantic_core.core_schema import ValidationInfo
 
-from .consts import reserved_words
-from .pagination import PaginationResponse
+from src.schemes.consts import reserved_words
 
 
-class CreateShortenedUrlSchema(BaseModel): # Request Body
+class CreateShortenedUrlRequestBody(BaseModel):
     friendly_name: constr(max_length=40, strip_whitespace=True)
     is_short_code_custom: bool
     short_code: Optional[constr(min_length=8, max_length=20, strip_whitespace=True)] = None
@@ -45,29 +44,3 @@ class CreateShortenedUrlSchema(BaseModel): # Request Body
                 f"The short code '{value}' contains invalid characters. "
                 "Only letters, digits, and '-' are allowed."
             )
-
-class UpdateShortenedUrlSchema(BaseModel): # Request Body
-    friendly_name: constr(max_length=40, strip_whitespace=True)
-
-
-class CreateShortenedUrlResponseSchema(BaseModel):
-    id: int
-    friendly_name: constr(max_length=40, strip_whitespace=True)
-    is_short_code_custom: bool
-    short_code: constr(max_length=20, strip_whitespace=True) = None
-    long_url: HttpUrl
-    created_at: datetime
-
-
-class UpdateShortenedUrlResponseSchema(CreateShortenedUrlResponseSchema):
-    pass
-
-
-class ShortenedUrlDetailsResponseSchema(CreateShortenedUrlResponseSchema):
-    pass
-
-
-class ShortenedUrlListResponseSchema(BaseModel):
-    items: List[CreateShortenedUrlResponseSchema]
-    pagination: PaginationResponse
-

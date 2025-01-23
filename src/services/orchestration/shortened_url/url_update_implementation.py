@@ -1,5 +1,5 @@
 from src.models import User, ShortenedUrl
-from src.schemes.shortened_url import UpdateShortenedUrlSchema
+from src.schemes.shortened_url.request_bodies.update import UpdateShortenedUrlSchema
 
 from .url_update_abstract import AbstractUrlUpdateOrchestrator
 from src.services.shortened_url.abstract_url_service import AbstractURLService

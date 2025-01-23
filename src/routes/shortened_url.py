@@ -6,11 +6,12 @@ from fastapi import APIRouter, Depends, status
 from src.core.containers import Container
 from src.dependencies.auth import get_current_user
 from src.models.user import User
-from src.schemes.shortened_url import (
-    CreateShortenedUrlResponseSchema, CreateShortenedUrlSchema,
-    UpdateShortenedUrlResponseSchema, UpdateShortenedUrlSchema,
-    ShortenedUrlDetailsResponseSchema, ShortenedUrlListResponseSchema,
-)
+from src.schemes.shortened_url.response_bodies.retrieve import ShortenedUrlDetailsResponseSchema, \
+    ShortenedUrlListResponseSchema
+from src.schemes.shortened_url.response_bodies.update import UpdateShortenedUrlResponseSchema
+from src.schemes.shortened_url.response_bodies.create import CreateShortenedUrlResponseSchema
+from src.schemes.shortened_url.request_bodies.update import UpdateShortenedUrlSchema
+from src.schemes.shortened_url.request_bodies.create import CreateShortenedUrlRequestBody
 from src.schemes.pagination import PaginationParams
 from src.services.shortened_url.abstract_url_service import AbstractURLService
 from src.services.orchestration.shortened_url.url_update_abstract import AbstractUrlUpdateOrchestrator
@@ -24,7 +25,7 @@ router = APIRouter(
 
 @router.post("/", response_model=CreateShortenedUrlResponseSchema, status_code=status.HTTP_201_CREATED)
 @inject
-async def create_shortened_url(url_data: CreateShortenedUrlSchema,
+async def create_shortened_url(url_data: CreateShortenedUrlRequestBody,
                                user: User = Depends(get_current_user),
                                url_service: AbstractURLService = Depends(Provide[Container.url_service])
                                ):
@@ -52,7 +53,10 @@ async def get_shortened_url_details(short_code: str,
                                     user: User = Depends(get_current_user),
                                     url_service: AbstractURLService = Depends(Provide[Container.url_service])
                                     ):
-    return await url_service.get_shortened_url_details(short_code, user)
+    shortened_url = await url_service.get_shortened_url_details(short_code, user)
+    return {
+        "item": shortened_url,
+    }
 
 
 @router.put("/{short_code}",

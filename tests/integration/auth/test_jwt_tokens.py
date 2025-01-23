@@ -37,7 +37,8 @@ class TestJWTAuth:
         response = await async_client.post("/api/v1/auth/token", data=login_data)
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.json()["detail"] == "Incorrect email or password"
+        data = response.json()
+        assert data["detail"][0]["ctx"]["reason"] == "Incorrect email or password"
 
     @pytest.mark.asyncio
     async def test_login_incorrect_password(self, async_client: AsyncClient, user: User, async_db: AsyncSession):
@@ -51,7 +52,8 @@ class TestJWTAuth:
         response = await async_client.post("/api/v1/auth/token", data=login_data)
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.json()["detail"] == "Incorrect email or password"
+        data = response.json()
+        assert data["detail"][0]["ctx"]["reason"] == "Incorrect email or password"
 
     @pytest.mark.asyncio
     async def test_refresh_token_success(self, async_client: AsyncClient, async_db: AsyncSession, tokens: AuthTokens):

@@ -26,7 +26,7 @@ class TestRetrieveShortenedUrl:
 
         response_data = response.json()
 
-        assert response_data["id"] == prepopulated_urls[0].id
+        assert response_data["item"]["id"] == prepopulated_urls[0].id
 
     @pytest.mark.asyncio
     async def test_retrieve_non_existing_url(

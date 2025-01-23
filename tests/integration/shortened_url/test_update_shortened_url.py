@@ -9,7 +9,7 @@ from src.core.containers import Container
 from src.services.cache.cache_stub import CacheServiceStub
 from src.models import ShortenedUrl
 from src.schemes.auth.token_data import AuthTokens
-from src.schemes.shortened_url import UpdateShortenedUrlSchema
+from src.schemes.shortened_url.request_bodies.update import UpdateShortenedUrlSchema
 
 
 class TestUpdateShortenedUrl:

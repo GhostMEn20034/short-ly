@@ -1,5 +1,5 @@
-from typing import Optional
-from pydantic import constr
+from typing import Optional, List
+from pydantic import constr, field_validator, model_validator
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     REDIS_HOST: constr(strip_whitespace=True)
     REDIS_PASSWORD: Optional[constr(strip_whitespace=True)] = None
     REDIS_PORT: int = 6379
+    CORS_ALLOWED_ORIGINS: List[constr(strip_whitespace=True)] = ["http://localhost:5173"]
 
 
 settings = Settings()

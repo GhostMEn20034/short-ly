@@ -57,7 +57,7 @@ class TestSignup:
         )
         assert response.status_code == 400
         data = response.json()
-        assert data["detail"] == "The user with this email already exists"
+        assert data["detail"][0]["ctx"]["reason"] == "The user with this email already exists"
 
     @pytest.mark.asyncio
     async def test_signup_two_passwords_are_different(self, async_client: AsyncClient, async_db: AsyncSession) -> None:

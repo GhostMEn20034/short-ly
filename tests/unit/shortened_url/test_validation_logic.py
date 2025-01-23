@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from src.schemes.shortened_url import CreateShortenedUrlSchema
+from src.schemes.shortened_url.request_bodies.create import CreateShortenedUrlRequestBody
 from src.schemes.consts import reserved_words
 
 
@@ -24,7 +24,7 @@ class TestShortenedUrlValidationLogic:
 
         # Verify that the schema raises a ValidationError for reserved words
         with pytest.raises(ValidationError) as exc_info:
-            CreateShortenedUrlSchema(**schema_data)
+            CreateShortenedUrlRequestBody(**schema_data)
 
         error_message = str(exc_info.value)
 
@@ -63,7 +63,7 @@ class TestShortenedUrlValidationLogic:
 
         # Verify that a ValidationError is raised for invalid characters
         with pytest.raises(ValidationError) as exc_info:
-            CreateShortenedUrlSchema(**schema_data)
+            CreateShortenedUrlRequestBody(**schema_data)
 
         # Assert the error message mentions invalid characters
         assert "contains invalid characters" in str(exc_info.value)
@@ -88,7 +88,7 @@ class TestShortenedUrlValidationLogic:
         }
 
         # Verify that no ValidationError is raised for valid characters
-        schema = CreateShortenedUrlSchema(**schema_data)
+        schema = CreateShortenedUrlRequestBody(**schema_data)
         assert schema.short_code == valid_short_code
 
     @pytest.mark.parametrize(
@@ -112,7 +112,7 @@ class TestShortenedUrlValidationLogic:
 
         # Verify that a ValidationError is raised for short codes that are too short
         with pytest.raises(ValidationError) as exc_info:
-            CreateShortenedUrlSchema(**schema_data)
+            CreateShortenedUrlRequestBody(**schema_data)
 
         # Assert the error message mentions the length constraint
         assert "String should have at least 8 characters" in str(exc_info.value)
@@ -137,7 +137,7 @@ class TestShortenedUrlValidationLogic:
 
         # Verify that a ValidationError is raised for short codes that are too long
         with pytest.raises(ValidationError) as exc_info:
-            CreateShortenedUrlSchema(**schema_data)
+            CreateShortenedUrlRequestBody(**schema_data)
 
         # Assert the error message mentions the length constraint
         assert "String should have at most 20 characters" in str(exc_info.value)
@@ -161,9 +161,9 @@ class TestShortenedUrlValidationLogic:
         }
 
         # This should not raise any errors, even with invalid characters or lengths.
-        schema_valid = CreateShortenedUrlSchema(**schema_data_valid)
+        schema_valid = CreateShortenedUrlRequestBody(**schema_data_valid)
         assert schema_valid.short_code == "my-valid-code123"
 
         # No validation should be done, any short code should be accepted
-        schema_invalid = CreateShortenedUrlSchema(**schema_data_invalid)
+        schema_invalid = CreateShortenedUrlRequestBody(**schema_data_invalid)
         assert schema_invalid.short_code == "invalid@code!"

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from src.models import User, ShortenedUrl
-from src.schemes.shortened_url import UpdateShortenedUrlSchema
+from src.schemes.shortened_url.request_bodies.update import UpdateShortenedUrlSchema
 
 
 class AbstractUrlUpdateOrchestrator(ABC):

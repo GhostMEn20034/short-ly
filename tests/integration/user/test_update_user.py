@@ -52,4 +52,4 @@ class TestUserUpdate:
         )
         assert response.status_code == 400
         data = response.json()
-        assert data["detail"] == "The user with this email already exists"
+        assert data["detail"][0]["ctx"]["reason"] == "The user with this email already exists"

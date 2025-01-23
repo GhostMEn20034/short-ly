@@ -1,4 +1,5 @@
 import pytest
+from fastapi import status
 from httpx import AsyncClient
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -20,7 +21,28 @@ class TestChangePassword:
             },
             headers={"Authorization": f"Bearer {tokens.access_token}"}
         )
-        assert response.status_code == 204
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    @pytest.mark.asyncio
+    async def test_change_password_with_wrong_password(
+            self, async_client: AsyncClient, async_db: AsyncSession, user: User,
+            tokens: AuthTokens
+    ):
+        # Valid password change
+        response = await async_client.put(
+            "/api/v1/users/change-password",
+            json={
+                "old_password": "Wrong Password",
+                "new_password1": "new_password123",
+                "new_password2": "new_password123"
+            },
+            headers={"Authorization": f"Bearer {tokens.access_token}"}
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+        data = response.json()
+
+        assert data["detail"][0]["ctx"]["reason"] == "You have entered wrong old password"
 
     @pytest.mark.asyncio
     async def test_change_password_too_short(self, async_client: AsyncClient, async_db: AsyncSession,

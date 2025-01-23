@@ -7,6 +7,7 @@ from src.core.exceptions.tokens import InvalidTokenType
 from src.repositories.unit_of_work.abstract import AbstractUnitOfWork
 from src.utils.auth.jwt_handler import JWTHandler
 from src.utils.password_utils import verify_password
+from src.utils.error_utils import generate_error_response
 from src.schemes.auth.token_data import AuthTokens, TokenPayload
 from src.models.user import User
 
@@ -21,17 +22,31 @@ class AuthService(AbstractAuthService):
             user = await self._uow.user_repository.get_by_email(form_data.username)
 
             if user is None:
+                error_details = generate_error_response(
+                    location=["body", "email"],
+                    message="Incorrect email or password",
+                    reason="Incorrect email or password",
+                    input_value=form_data.username,
+                    error_type="domain_error"
+                )
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Incorrect email or password"
+                    detail=[error_details, ],
                 )
 
             hashed_password = user.password
 
             if not verify_password(form_data.password, hashed_password):
+                error_details = generate_error_response(
+                    location=["body", "password"],
+                    message="Incorrect email or password",
+                    reason="Incorrect email or password",
+                    input_value=form_data.password,
+                    error_type="domain_error"
+                )
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Incorrect email or password"
+                    detail=[error_details, ],
                 )
 
             token_payload = {
