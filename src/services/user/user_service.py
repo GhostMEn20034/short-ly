@@ -7,21 +7,23 @@ from src.utils.password_utils import hash_password, verify_password
 from src.utils.user.user_model import create_user_from_signup_data, apply_updates_to_user
 from src.utils.error_utils import generate_error_response
 from src.models.user import User
+from src.repositories.user.abstract import AbstractUserRepository
 
 
 class UserService(AbstractUserService):
-    def __init__(self, uow: AbstractUnitOfWork):
+    def __init__(self, uow: AbstractUnitOfWork, user_repository: AbstractUserRepository):
         self._uow = uow
+        self._user_repository = user_repository
 
     async def user_signup(self, user_create_data: UserCreate) -> UserReadSchema:
 
         async with self._uow:
-            user = await self._uow.user_repository.get_by_email(user_create_data.email)
+            user = await self._user_repository.get_by_email(user_create_data.email)
 
             if user is not None:
                 error_details = generate_error_response(
                     location=["body", "email"],
-                    message="Email already exists.",
+                    message="Email already taken.",
                     reason="The user with this email already exists",
                     input_value=user_create_data.email,
                     error_type="domain_error"
@@ -38,7 +40,7 @@ class UserService(AbstractUserService):
 
             user_model = create_user_from_signup_data(user_create_data, hashed_password)
 
-            created_user = await self._uow.user_repository.add(user_model)
+            created_user = await self._user_repository.add(user_model)
 
             await self._uow.commit()
 
@@ -46,7 +48,7 @@ class UserService(AbstractUserService):
 
     async def update_user(self, user: User, user_update_data: UserUpdateSchema) -> UserReadSchema:
         async with self._uow:
-            user_with_the_same_email = await self._uow.user_repository.get_by_email(user_update_data.email)
+            user_with_the_same_email = await self._user_repository.get_by_email(user_update_data.email)
             # If there's a user with the same email, and it's not the user itself
             if user_with_the_same_email is not None and user.email != user_update_data.email:
                 error_details = generate_error_response(
@@ -64,10 +66,9 @@ class UserService(AbstractUserService):
                     detail=[error_details, ],
                 )
 
-        async with self._uow:
             apply_updates_to_user(user, user_update_data)
 
-            updated_user = await self._uow.user_repository.update(user)
+            updated_user = await self._user_repository.update(user)
 
             await self._uow.commit()
 
@@ -100,5 +101,5 @@ class UserService(AbstractUserService):
         user.password = new_hashed_password
 
         async with self._uow:
-            await self._uow.user_repository.update(user)
+            await self._user_repository.update(user)
             await self._uow.commit()

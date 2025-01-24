@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from fastapi.security import OAuth2PasswordRequestForm
 
 from src.models.user import User
+from src.repositories.user.abstract import AbstractUserRepository
 from src.schemes.auth.token_data import AuthTokens
 
 

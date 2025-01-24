@@ -10,16 +10,17 @@ from src.utils.password_utils import verify_password
 from src.utils.error_utils import generate_error_response
 from src.schemes.auth.token_data import AuthTokens, TokenPayload
 from src.models.user import User
+from src.repositories.user.abstract import AbstractUserRepository
 
 
 class AuthService(AbstractAuthService):
-    def __init__(self, jwt_handler: JWTHandler, uow: AbstractUnitOfWork):
+    def __init__(self, jwt_handler: JWTHandler, uow: AbstractUnitOfWork, user_repository: AbstractUserRepository):
         self._jwt_handler = jwt_handler
         self._uow = uow
+        self._user_repository = user_repository
 
     async def provide_tokens(self, form_data: OAuth2PasswordRequestForm) -> AuthTokens:
-        async with self._uow:
-            user = await self._uow.user_repository.get_by_email(form_data.username)
+            user = await self._user_repository.get_by_email(form_data.username)
 
             if user is None:
                 error_details = generate_error_response(
@@ -92,45 +93,42 @@ class AuthService(AbstractAuthService):
 
     async def get_user_from_token(self, token: str) -> User:
         token_data = self._decode_token(token, token_type='access')
-        async with self._uow:
-            user = await self._uow.user_repository.get_by_id(token_data.id)
 
-            if user is None:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="Could not find user",
-                )
+        user = await self._user_repository.get_by_id(token_data.id)
 
-            return user
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Could not find user",
+            )
+        return user
 
 
     async def refresh_access_token(self, refresh_token: str) -> str:
         token_data = self._decode_token(refresh_token, token_type='refresh')
 
-        async with self._uow:
-            user = await self._uow.user_repository.get_by_id(token_data.id)
+        user = await self._user_repository.get_by_id(token_data.id)
 
-            if user is None:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="Could not find user",
-                )
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Could not find user",
+            )
 
-            payload = {"id": user.id}
+        payload = {"id": user.id}
 
-            return self._jwt_handler.create_access_token(payload)
+        return self._jwt_handler.create_access_token(payload)
 
     async def refresh_both_tokens(self, refresh_token: str) -> AuthTokens:
         token_data = self._decode_token(refresh_token, token_type='refresh')
 
-        async with self._uow:
-            user = await self._uow.user_repository.get_by_id(token_data.id)
+        user = await self._user_repository.get_by_id(token_data.id)
 
-            if user is None:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="Could not find user",
-                )
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Could not find user",
+            )
 
         payload = {"id": user.id}
         access_token = self._jwt_handler.create_access_token(payload.copy())

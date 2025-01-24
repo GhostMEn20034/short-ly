@@ -14,5 +14,5 @@ class AuthTokens(BaseModel):
     refresh_token: str # Token to refresh the access token
 
 
-class RefreshTokenRequest(BaseModel):
+class RefreshTokensRequest(BaseModel):
     refresh_token: str

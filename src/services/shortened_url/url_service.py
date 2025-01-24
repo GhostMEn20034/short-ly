@@ -5,7 +5,7 @@ from fastapi import HTTPException, status
 from pydantic import HttpUrl
 
 from .abstract_url_service import AbstractURLService
-from ...schemes.shortened_url.request_bodies.update import UpdateShortenedUrlSchema
+from src.schemes.shortened_url.request_bodies.update import UpdateShortenedUrlSchema
 from src.schemes.shortened_url.request_bodies.create import CreateShortenedUrlRequestBody
 from src.repositories.unit_of_work.abstract import AbstractUnitOfWork
 from src.services.short_code_generator.abstract import AbstractShortCodeGenerator
@@ -13,14 +13,17 @@ from src.core.exceptions.shortened_url import MaxRetriesExceeded
 from src.models.shortened_url import ShortenedUrl
 from src.models.user import User
 from src.schemes.pagination import PaginationParams, PaginationResponse
+from src.repositories.shortened_url.abstract import AbstractURLRepositorySQL
 
 
 class URLService(AbstractURLService):
     def __init__(self,
                  uow: AbstractUnitOfWork,
+                 url_repository: AbstractURLRepositorySQL,
                  short_code_generator: AbstractShortCodeGenerator,
                  ):
         self._uow = uow
+        self._url_repository = url_repository
         self._short_code_generator = short_code_generator
 
     async def _get_unique_short_code(self) -> str:
@@ -33,7 +36,7 @@ class URLService(AbstractURLService):
         if no unique code is found within the allowed number of retries.
         """
         for generated_short_code in self._short_code_generator.generate_short_code(code_length=8, max_retries=5):
-            exists = await self._uow.url_repository.is_shortened_url_exist(generated_short_code)
+            exists = await self._url_repository.is_shortened_url_exist(generated_short_code)
             if not exists:
                 return generated_short_code
 
@@ -56,7 +59,7 @@ class URLService(AbstractURLService):
             except MaxRetriesExceeded:
                 raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
-            exists = await self._uow.url_repository.is_shortened_url_exist(short_code)
+            exists = await self._url_repository.is_shortened_url_exist(short_code)
             if exists:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                     detail={'short_code': "Short code already exists"})
@@ -70,7 +73,7 @@ class URLService(AbstractURLService):
             user_id=owner.id,
         )
 
-        created_shortened_url = await self._uow.url_repository.add(shortened_url)
+        created_shortened_url = await self._url_repository.add(shortened_url)
         await self._uow.commit()
 
         return created_shortened_url
@@ -78,7 +81,7 @@ class URLService(AbstractURLService):
     async def get_shortened_url_list(self, user: User, pagination_params: PaginationParams) \
                                                                    -> Tuple[Sequence[ShortenedUrl], PaginationResponse]:
 
-        items, total_count = await self._uow.url_repository.get_paginated_url_list(user.id, pagination_params)
+        items, total_count = await self._url_repository.get_paginated_url_list(user.id, pagination_params)
         total_pages = math.ceil(total_count / pagination_params.page_size)
 
         # By default, pagination should always result
@@ -96,7 +99,7 @@ class URLService(AbstractURLService):
         return items, pagination_response
 
     async def get_shortened_url_details(self, short_code: str, owner: User) -> Optional[ShortenedUrl]:
-        shortened_url = await self._uow.url_repository.get_by_short_code(short_code)
+        shortened_url = await self._url_repository.get_by_short_code(short_code)
         if not shortened_url:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
@@ -109,7 +112,7 @@ class URLService(AbstractURLService):
         return shortened_url
 
     async def get_long_url(self, short_code: str) -> HttpUrl:
-        shortened_url = await self._uow.url_repository.get_by_short_code(short_code)
+        shortened_url = await self._url_repository.get_by_short_code(short_code)
         if not shortened_url:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                                 detail={"short_code": f"Url with short code {short_code} did not exist"})
@@ -117,7 +120,7 @@ class URLService(AbstractURLService):
         return shortened_url.long_url
 
     async def update_shortened_url(self, short_code: str, data: UpdateShortenedUrlSchema, owner: User) -> ShortenedUrl:
-        shortened_url = await self._uow.url_repository.get_by_short_code(short_code)
+        shortened_url = await self._url_repository.get_by_short_code(short_code)
         if not shortened_url:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
@@ -129,13 +132,13 @@ class URLService(AbstractURLService):
 
         # update shortened url's friendly name
         shortened_url.friendly_name = data.friendly_name
-        updated_shortened_url = await self._uow.url_repository.update(shortened_url)
+        updated_shortened_url = await self._url_repository.update(shortened_url)
         await self._uow.commit()
 
         return updated_shortened_url
 
     async def delete_shortened_url(self, short_code: str, owner: User) -> bool:
-        shortened_url = await self._uow.url_repository.get_by_short_code(short_code)
+        shortened_url = await self._url_repository.get_by_short_code(short_code)
         if not shortened_url:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
@@ -145,7 +148,7 @@ class URLService(AbstractURLService):
                 detail="You are not the owner of this shortened url"
             )
 
-        await self._uow.url_repository.delete(shortened_url)
+        await self._url_repository.delete(shortened_url)
         await self._uow.commit()
 
         return True

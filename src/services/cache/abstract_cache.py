@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Any, Dict
+from typing import Optional, Dict
 
 
 class AbstractCacheService(ABC):

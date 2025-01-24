@@ -6,7 +6,7 @@ from src.core.settings import settings
 
 engine = create_async_engine(
     settings.DB_CONNECTION_STRING,
-    echo=True,
+    echo=settings.DB_LOG_QUERIES,
     future=True,
 )
 

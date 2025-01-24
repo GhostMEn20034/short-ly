@@ -4,7 +4,7 @@ from httpx import AsyncClient
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.models import User
-from src.schemes.auth.token_data import RefreshTokenRequest, AuthTokens
+from src.schemes.auth.token_data import RefreshTokensRequest, AuthTokens
 
 
 class TestJWTAuth:
@@ -59,7 +59,7 @@ class TestJWTAuth:
     async def test_refresh_token_success(self, async_client: AsyncClient, async_db: AsyncSession, tokens: AuthTokens):
 
         # Prepare the refresh token request
-        refresh_token_data = RefreshTokenRequest(refresh_token=tokens.refresh_token)
+        refresh_token_data = RefreshTokensRequest(refresh_token=tokens.refresh_token)
 
         # Perform the refresh token request
         response = await async_client.post("/api/v1/auth/token/refresh", json=refresh_token_data.model_dump())
@@ -78,7 +78,7 @@ class TestJWTAuth:
     @pytest.mark.asyncio
     async def test_refresh_token_invalid(self, async_client: AsyncClient, async_db: AsyncSession):
         # Prepare the refresh token request with invalid token
-        refresh_token_data = RefreshTokenRequest(refresh_token="invalid_token")
+        refresh_token_data = RefreshTokensRequest(refresh_token="invalid_token")
 
         # Perform the refresh token request
         response = await async_client.post("/api/v1/auth/token/refresh", json=refresh_token_data.model_dump())

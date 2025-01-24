@@ -45,7 +45,7 @@ class TestRetrieveShortenedUrlInPublicRoutes:
 
     @pytest.mark.asyncio
     async def test_retrieve_url_second_request_should_get_url_from_cache(
-            self, app: FastAPI, async_client: AsyncClient, async_db: AsyncSession,
+            self, async_client: AsyncClient, async_db: AsyncSession,
             prepopulated_urls: List[ShortenedUrl],
     ):
         """
@@ -55,17 +55,14 @@ class TestRetrieveShortenedUrlInPublicRoutes:
 
         # Make sure that we get redirect response
         assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
+        # And There's no cache
+        assert response.headers["X-Cache-Status"] == "MISS"
 
-        mocked_url_service = mock.AsyncMock(spec=URLService)
-        mocked_url_service.get_long_url.return_value = None
-
-        container: Container = app.container
-
-        with container.url_service.override(mocked_url_service):
-            response = await async_client.get(f"/{prepopulated_urls[0].short_code}")
+        response = await async_client.get(f"/{prepopulated_urls[0].short_code}")
 
         assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
-        assert mocked_url_service.get_long_url.call_count == 0
+        # Ensure that the value is retrieved from the cache
+        assert response.headers["X-Cache-Status"] == "HIT"
 
     @pytest.mark.asyncio
     async def test_retrieve_non_existing_url(
