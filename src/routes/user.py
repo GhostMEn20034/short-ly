@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, status
 
 from src.dependencies.services.user_service import get_user_service
 from src.models.user import User
-from src.schemes.user import UserCreate, UserReadSchema, UserUpdateSchema, ChangePasswordSchema
+from src.schemes.user import UserCreate, UserReadSchema, UserUpdateSchema, ChangePasswordSchema, ChangeEmailSchema
 from src.services.user.abstract import AbstractUserService
 from src.dependencies.auth.get_user import get_current_user
 
@@ -33,6 +33,15 @@ async def update_user(
         user_service: Annotated[AbstractUserService, Depends(get_user_service)],
 ):
     return await user_service.update_user(user, user_update_data)
+
+
+@router.put('/change-email', response_model=UserReadSchema)
+async def change_email(
+        data_to_update: ChangeEmailSchema,
+        user: Annotated[User, Depends(get_current_user)],
+        user_service: Annotated[AbstractUserService, Depends(get_user_service)],
+):
+    return await user_service.change_email(user, data_to_update.email)
 
 
 @router.put('/change-password', status_code=status.HTTP_204_NO_CONTENT)

@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from pydantic import EmailStr
+
 from src.models.user import User
 from src.schemes.user import UserCreate, UserReadSchema, UserUpdateSchema, ChangePasswordSchema
 
@@ -12,6 +14,10 @@ class AbstractUserService(ABC):
 
     @abstractmethod
     async def update_user(self, user: User, user_update_data: UserUpdateSchema) -> UserReadSchema:
+        pass
+
+    @abstractmethod
+    async def change_email(self, user: User, new_email: EmailStr) -> UserReadSchema:
         pass
 
     @abstractmethod

@@ -28,18 +28,21 @@ class UserCreate(BaseModel):
         return value
 
 class UserUpdateSchema(BaseModel):
-    email: EmailStr
     first_name: str
-    last_name: str
+    last_name: Optional[str] = None
     date_of_birth: Optional[date] = None
 
 class UserReadSchema(BaseModel):
     email: EmailStr
     first_name: str
-    last_name: str
+    last_name: Optional[str] = None
     date_of_birth: Optional[date] = None
     created_at: datetime
     updated_at: datetime
+
+
+class ChangeEmailSchema(BaseModel):
+    email: EmailStr
 
 
 class ChangePasswordSchema(BaseModel):

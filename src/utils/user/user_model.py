@@ -22,7 +22,6 @@ def apply_updates_to_user(user: User, new_user_data: UserUpdateSchema) -> User:
     :param new_user_data: New user's data which will be applied to the user
     :return:
     """
-    user.email = new_user_data.email
     user.first_name = new_user_data.first_name
     user.last_name = new_user_data.last_name
     user.date_of_birth = new_user_data.date_of_birth

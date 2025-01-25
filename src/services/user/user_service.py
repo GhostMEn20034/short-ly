@@ -1,4 +1,5 @@
 from fastapi import HTTPException, status
+from pydantic import EmailStr
 
 from .abstract import AbstractUserService
 from src.schemes.user import UserCreate, UserReadSchema, UserUpdateSchema, ChangePasswordSchema
@@ -48,14 +49,24 @@ class UserService(AbstractUserService):
 
     async def update_user(self, user: User, user_update_data: UserUpdateSchema) -> UserReadSchema:
         async with self._uow:
-            user_with_the_same_email = await self._user_repository.get_by_email(user_update_data.email)
+            apply_updates_to_user(user, user_update_data)
+
+            updated_user = await self._user_repository.update(user)
+
+            await self._uow.commit()
+
+            return UserReadSchema(**updated_user.model_dump())
+
+    async def change_email(self, user: User, new_email: EmailStr) -> UserReadSchema:
+        async with self._uow:
+            user_with_the_same_email = await self._user_repository.get_by_email(new_email)
             # If there's a user with the same email, and it's not the user itself
-            if user_with_the_same_email is not None and user.email != user_update_data.email:
+            if user_with_the_same_email is not None and user.email != new_email:
                 error_details = generate_error_response(
                     location=["body", "email"],
-                    message="Email already exists.",
+                    message="Email already taken.",
                     reason="The user with this email already exists",
-                    input_value=user_update_data.email,
+                    input_value=new_email,
                     error_type="domain_error"
                 )
 
@@ -66,10 +77,8 @@ class UserService(AbstractUserService):
                     detail=[error_details, ],
                 )
 
-            apply_updates_to_user(user, user_update_data)
-
+            user.email = str(new_email)
             updated_user = await self._user_repository.update(user)
-
             await self._uow.commit()
 
             return UserReadSchema(**updated_user.model_dump())
