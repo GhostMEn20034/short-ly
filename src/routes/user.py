@@ -1,6 +1,10 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, status
 
+from docs.open_api_specs.routes.user import (
+    user_signup, user_details, user_update, change_email, change_password
+)
+
 from src.dependencies.services.user_service import get_user_service
 from src.models.user import User
 from src.schemes.user import UserCreate, UserReadSchema, UserUpdateSchema, ChangePasswordSchema, ChangeEmailSchema
@@ -14,19 +18,32 @@ router = APIRouter(
 )
 
 
-@router.post('/signup', status_code=status.HTTP_201_CREATED, response_model=UserReadSchema)
+@router.post(
+    '/signup',
+    status_code=status.HTTP_201_CREATED,
+    response_model=UserReadSchema,
+    **user_signup.specs,
+)
 async def signup(user_data: UserCreate,
                  user_service: Annotated[AbstractUserService, Depends(get_user_service)],
                  ):
     return await user_service.user_signup(user_data)
 
 
-@router.get('/details', response_model=UserReadSchema)
+@router.get(
+    '/details',
+    response_model=UserReadSchema,
+    **user_details.specs,
+)
 async def get_user_details(user: Annotated[User, Depends(get_current_user)],):
     return UserReadSchema(**user.model_dump())
 
 
-@router.put('/update', response_model=UserReadSchema)
+@router.put(
+    '/update',
+    response_model=UserReadSchema,
+    **user_update.specs,
+)
 async def update_user(
         user_update_data: UserUpdateSchema,
         user: Annotated[User, Depends(get_current_user)],
@@ -35,7 +52,11 @@ async def update_user(
     return await user_service.update_user(user, user_update_data)
 
 
-@router.put('/change-email', response_model=UserReadSchema)
+@router.put(
+    '/change-email',
+    response_model=UserReadSchema,
+    **change_email.specs,
+)
 async def change_email(
         data_to_update: ChangeEmailSchema,
         user: Annotated[User, Depends(get_current_user)],
@@ -44,7 +65,11 @@ async def change_email(
     return await user_service.change_email(user, data_to_update.email)
 
 
-@router.put('/change-password', status_code=status.HTTP_204_NO_CONTENT)
+@router.put(
+    '/change-password',
+    status_code=status.HTTP_204_NO_CONTENT,
+    **change_password.specs,
+)
 async def change_password(
         change_password_data: ChangePasswordSchema,
         user: Annotated[User, Depends(get_current_user)],

@@ -27,15 +27,19 @@ class TestUpdateShortenedUrl:
         mocked_cache_service.delete.return_value = None
 
         request_body = UpdateShortenedUrlSchema(
-            friendly_name="New Friendly name"
+            friendly_name="New Friendly name",
+            long_url="https://example.com",
         )
+
+        serialized_body = request_body.model_dump()
+        serialized_body["long_url"] = str(serialized_body["long_url"])
 
         container: Container = app.container
 
         with container.redis_cache_service.override(mocked_cache_service):
             response = await async_client.put(f"/api/v1/urls/{prepopulated_urls[0].short_code}",
                                            headers={"Authorization": f"Bearer {tokens.access_token}"},
-                                           json=request_body.model_dump(),
+                                           json=serialized_body,
                                            )
 
         assert response.status_code == status.HTTP_200_OK
@@ -43,6 +47,7 @@ class TestUpdateShortenedUrl:
         response_data = response.json()
         # Ensure that new data has applied to shortened url record
         assert response_data["friendly_name"] == request_body.friendly_name
+        assert response_data["long_url"] == str(request_body.long_url)
 
         # Ensure that cache was invalidated
         mocked_cache_service.delete.assert_called_with(f"short_codes:{prepopulated_urls[0].short_code}")
@@ -53,12 +58,16 @@ class TestUpdateShortenedUrl:
         If a user trying to update non-existing url, the user will get HTTP 404 NOT FOUND error.
         """
         request_body = UpdateShortenedUrlSchema(
-            friendly_name="New Friendly name"
+            friendly_name="New Friendly name",
+            long_url="https://example.com",
         )
+
+        serialized_body = request_body.model_dump()
+        serialized_body["long_url"] = str(serialized_body["long_url"])
 
         response = await async_client.put("/api/v1/urls/dasds314",
                                           headers={"Authorization": f"Bearer {tokens.access_token}"},
-                                          json=request_body.model_dump(),
+                                          json=serialized_body,
                                           )
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -71,12 +80,16 @@ class TestUpdateShortenedUrl:
         If User 1 try to update URL of User 2, User 1 must get HTTP 403 FORBIDDEN error.
         """
         request_body = UpdateShortenedUrlSchema(
-            friendly_name="New Friendly name"
+            friendly_name="New Friendly name",
+            long_url="https://example.com",
         )
+
+        serialized_body = request_body.model_dump()
+        serialized_body["long_url"] = str(serialized_body["long_url"])
 
         response = await async_client.put(f"/api/v1/urls/{prepopulated_url_for_second_user.short_code}",
                                           headers={"Authorization": f"Bearer {tokens.access_token}"},
-                                          json=request_body.model_dump(),
+                                          json=serialized_body,
                                           )
 
         assert response.status_code == status.HTTP_403_FORBIDDEN

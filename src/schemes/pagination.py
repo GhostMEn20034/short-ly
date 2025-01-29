@@ -11,3 +11,13 @@ class PaginationResponse(BaseModel):
     page_size: int
     total_pages: int
     total_items: int
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "current_page": 1,
+                "page_size": 15,
+                "total_pages": 1,
+                "total_items": 1,
+            }
+        }

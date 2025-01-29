@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from docs.open_api_specs.routes import healthcheck as healthcheck_specs
+
 from .containers import Container
 from src.routes.auth import router as auth_router
 from src.routes.user import router as user_router
@@ -10,7 +12,7 @@ from .settings import settings
 
 
 def include_healthcheck(app: FastAPI):
-    @app.get("/healthcheck")
+    @app.get("/healthcheck", **healthcheck_specs.specs)
     async def healthcheck():
         return {"status": "ok"}
 

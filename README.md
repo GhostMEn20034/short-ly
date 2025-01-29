@@ -14,7 +14,10 @@
   - [ ] Clicks + scans by device
   - [ ] Clicks + scans over time
   - [ ] Top-Performing Location (The location with the highest number of scans)
-  - [ ] Clicks + scans by location 
+  - [ ] Clicks + scans by location
+
+### Frontend Repository
+https://github.com/GhostMEn20034/short-ly-frontend
 
 # Setup
 **Note that the setup assumes you are using any Linux distribution**
@@ -34,6 +37,7 @@ touch .env
 ### 5. Insert the next variables:
 ```bash
 DB_CONNECTION_STRING=postgresql+asyncpg://<SQL_USER>:<SQL_PASSWORD>@db:5432/<SQL_DATABASE>
+DB_LOG_QUERIES=false | true
 SQL_USER=your_db_user
 SQL_PASSWORD=your_db_password
 SQL_DATABASE=your_database_name
@@ -60,6 +64,7 @@ touch .env.test
 ### 3. Open the file in any editor and paste the same variables as in `.env.test` file:
 ```bash
 DB_CONNECTION_STRING=postgresql+asyncpg://<SQL_USER>:<SQL_PASSWORD>@db:5432/<SQL_DATABASE>
+DB_LOG_QUERIES=false | true
 SQL_USER=your_db_user
 SQL_PASSWORD=your_db_password
 SQL_DATABASE=your_database_name

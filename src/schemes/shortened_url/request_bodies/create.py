@@ -44,3 +44,13 @@ class CreateShortenedUrlRequestBody(BaseModel):
                 f"The short code '{value}' contains invalid characters. "
                 "Only letters, digits, and '-' are allowed."
             )
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "friendly_name": "My link to Twitch",
+                "is_short_code_custom": True,
+                "short_code": "twitch-tv",
+                "long_url": "https://twitch.tv"
+            }
+        }

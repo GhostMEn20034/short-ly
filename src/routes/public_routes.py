@@ -1,6 +1,7 @@
 from typing import Annotated
 from fastapi import APIRouter, responses, Depends, status
 
+from docs.open_api_specs.routes.public_routes import get_long_url
 from src.dependencies.orchestration_services.url_retrieval_orchestrator import get_url_retrieval_orchestrator
 from src.services.orchestration.shortened_url.url_retrieval_abstract import AbstractUrlRetrievalOrchestrator
 
@@ -10,7 +11,7 @@ router = APIRouter(
 )
 
 
-@router.get("/{short_code}", status_code=status.HTTP_307_TEMPORARY_REDIRECT)
+@router.get("/{short_code}", status_code=status.HTTP_307_TEMPORARY_REDIRECT , **get_long_url.specs)
 async def get_long_url(short_code: str,
                        url_retrieval_orchestrator: Annotated[
                            AbstractUrlRetrievalOrchestrator, Depends(get_url_retrieval_orchestrator)],
