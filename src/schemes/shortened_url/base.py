@@ -9,6 +9,7 @@ class BaseShortenedUrlModel(BaseModel):
     is_short_code_custom: bool
     short_code: constr(max_length=20, strip_whitespace=True) = None
     long_url: HttpUrl
+    user_id: int
     created_at: datetime
 
     class Config:

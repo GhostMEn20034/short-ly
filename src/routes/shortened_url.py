@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Query
 
 # Open API Specs
 from docs.open_api_specs.routes.shortened_url import (
@@ -24,10 +24,12 @@ from src.schemes.shortened_url.response_bodies.create import CreateShortenedUrlR
 from src.schemes.shortened_url.request_bodies.update import UpdateShortenedUrlSchema
 from src.schemes.shortened_url.request_bodies.create import CreateShortenedUrlRequestBody
 from src.schemes.pagination import PaginationParams
+from src.schemes.common import DatetimeRange
 # Services
 from src.services.shortened_url.abstract_url_service import AbstractURLService
 from src.services.orchestration.shortened_url.url_update_abstract import AbstractUrlUpdateOrchestrator
 from src.services.orchestration.shortened_url.url_delete_abstract import AbstractUrlDeleteOrchestrator
+
 
 router = APIRouter(
     prefix='/urls',
@@ -55,13 +57,16 @@ async def create_shortened_url(url_data: CreateShortenedUrlRequestBody,
     **get_all_urls.specs,
 )
 async def get_all_shortened_urls(pagination_params: Annotated[PaginationParams, Depends(PaginationParams)],
+                                 datetime_range_params: Annotated[DatetimeRange, Query()],
                                  user: Annotated[User, Depends(get_current_user)],
                                  url_service: Annotated[AbstractURLService, Depends(get_url_service)],
                                  ):
     """
     Returns all user's shortened urls.
     """
-    items, pagination_response = await url_service.get_shortened_url_list(user, pagination_params)
+    items, pagination_response = await url_service.get_shortened_url_list(
+        user, datetime_range_params, pagination_params
+    )
     return {
         "items": items,
         "pagination": pagination_response,

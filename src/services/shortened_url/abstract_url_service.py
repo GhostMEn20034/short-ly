@@ -4,6 +4,7 @@ from pydantic import HttpUrl
 
 from src.models.user import User
 from src.models.shortened_url import ShortenedUrl
+from src.schemes.common import DatetimeRange
 from src.schemes.shortened_url.request_bodies.update import UpdateShortenedUrlSchema
 from src.schemes.shortened_url.request_bodies.create import CreateShortenedUrlRequestBody
 
@@ -18,7 +19,7 @@ class AbstractURLService(ABC):
 
 
     @abstractmethod
-    async def get_shortened_url_list(self, user: User, pagination_params: PaginationParams) \
+    async def get_shortened_url_list(self, user: User, datetime_range: DatetimeRange, pagination_params: PaginationParams) \
                                                                   -> Tuple[Sequence[ShortenedUrl], PaginationResponse]:
         pass
 

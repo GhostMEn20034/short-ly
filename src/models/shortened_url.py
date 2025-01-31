@@ -22,7 +22,8 @@ class ShortenedUrl(BaseModel, table=True):
         sa_column=Column(
             "created_at", TIMESTAMP(timezone=True),
             default=lambda: datetime.now(UTC),
-            nullable=False
+            nullable=False,
+            index=True,
         )
     )
 

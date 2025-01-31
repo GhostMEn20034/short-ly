@@ -3,6 +3,7 @@ from typing import Optional, List, Sequence, Tuple
 
 from src.models.shortened_url import ShortenedUrl
 from src.repositories.base.abstract import AbstractGenericRepository
+from src.schemes.common import DatetimeRange
 from src.schemes.pagination import PaginationParams
 
 
@@ -13,7 +14,7 @@ class AbstractURLRepositorySQL(AbstractGenericRepository[ShortenedUrl], ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    async def get_paginated_url_list(self, user_id: int,
+    async def get_paginated_url_list(self, user_id: int, datetime_range: DatetimeRange,
                                      pagination_params: PaginationParams) -> Tuple[Sequence[ShortenedUrl], int]:
         raise NotImplementedError()
 

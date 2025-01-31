@@ -15,6 +15,7 @@ from src.models.user import User
 from src.schemes.pagination import PaginationParams, PaginationResponse
 from src.repositories.shortened_url.abstract import AbstractURLRepositorySQL
 from src.utils.error_utils import generate_error_response
+from src.schemes.common import DatetimeRange
 
 
 class URLService(AbstractURLService):
@@ -100,10 +101,9 @@ class URLService(AbstractURLService):
 
         return created_shortened_url
 
-    async def get_shortened_url_list(self, user: User, pagination_params: PaginationParams) \
+    async def get_shortened_url_list(self, user: User, datetime_range: DatetimeRange, pagination_params: PaginationParams) \
                                                                    -> Tuple[Sequence[ShortenedUrl], PaginationResponse]:
-
-        items, total_count = await self._url_repository.get_paginated_url_list(user.id, pagination_params)
+        items, total_count = await self._url_repository.get_paginated_url_list(user.id, datetime_range, pagination_params)
         total_pages = math.ceil(total_count / pagination_params.page_size)
 
         # By default, pagination should always result
