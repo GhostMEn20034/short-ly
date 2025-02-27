@@ -1,6 +1,5 @@
 import math
 from typing import Optional, Sequence, Tuple
-
 from fastapi import HTTPException, status
 from pydantic import HttpUrl
 

@@ -1,9 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from fastapi import Query
-from pydantic import BaseModel, model_validator, field_validator, Field
-from pydantic_core.core_schema import ValidationInfo
+from pydantic import BaseModel, model_validator, Field
 
 
 class DatetimeRange(BaseModel):

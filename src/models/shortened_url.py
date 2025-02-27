@@ -5,6 +5,7 @@ from pydantic import HttpUrl
 from .user import User
 from .base import BaseModel
 
+
 class ShortenedUrl(BaseModel, table=True):
     __tablename__ = 'shortened_url'
 
@@ -15,8 +16,18 @@ class ShortenedUrl(BaseModel, table=True):
     long_url: HttpUrl = Field(sa_column=Column("long_url", VARCHAR(2083), nullable=False))
 
     # Relationship to the User model
-    user_id: int = Field(sa_column=Column("user_id", Integer, ForeignKey("user.id"), nullable=False))
+    user_id: int = Field(
+        sa_column=Column(
+            "user_id",
+            Integer,
+            ForeignKey("user.id", ondelete="CASCADE"),
+            nullable=False,
+        )
+    )
     user: User = Relationship(back_populates="shortened_urls")
+
+    # Relationship to the QRCode model
+    qr_code: "QRCode" = Relationship(back_populates="link", cascade_delete=True)
 
     created_at: datetime | None = Field(
         sa_column=Column(
@@ -26,4 +37,3 @@ class ShortenedUrl(BaseModel, table=True):
             index=True,
         )
     )
-

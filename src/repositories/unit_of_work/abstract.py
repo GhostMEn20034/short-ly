@@ -20,3 +20,17 @@ class AbstractUnitOfWork(ABC):
     async def rollback(self) -> None:
         """Rollback the current transaction."""
         pass
+
+    @abstractmethod
+    def prevent_commit(self):
+        """
+        After calling this method, all commit operations will be ignored.
+        """
+        pass
+
+    @abstractmethod
+    def allow_commit(self):
+        """
+        To allow commit operations, you need to call this method
+        """
+        pass

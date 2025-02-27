@@ -34,3 +34,4 @@ class User(BaseModel, table=True):
     )
 
     shortened_urls: List["ShortenedUrl"] = Relationship(back_populates="user", cascade_delete=True)
+    qr_codes: List["QRCode"] = Relationship(back_populates="user", cascade_delete=True)
