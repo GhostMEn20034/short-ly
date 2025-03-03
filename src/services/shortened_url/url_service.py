@@ -1,4 +1,3 @@
-import math
 from typing import Optional, Sequence, Tuple
 from fastapi import HTTPException, status
 from pydantic import HttpUrl
@@ -103,12 +102,7 @@ class URLService(AbstractURLService):
     async def get_shortened_url_list(self, user: User, datetime_range: DatetimeRange, pagination_params: PaginationParams) \
                                                                    -> Tuple[Sequence[ShortenedUrl], PaginationResponse]:
         items, total_count = await self._url_repository.get_paginated_url_list(user.id, datetime_range, pagination_params)
-        total_pages = math.ceil(total_count / pagination_params.page_size)
-
-        # By default, pagination should always result
-        # in at least one "page" (even if it's empty), so this block of code ensures that total_pages is at least 1.
-        if total_pages < 1:
-            total_pages = 1
+        total_pages = pagination_params.get_total_pages(total_count)
 
         pagination_response = PaginationResponse(
             current_page=pagination_params.page,

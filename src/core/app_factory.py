@@ -40,7 +40,7 @@ def create_app() -> FastAPI:
 
     container.wire(modules=modules_to_wire)
 
-    app = FastAPI()
+    app = FastAPI(title="URL Shortener Shortly", version="0.7")
     app.container = container
     
     include_middlewares(app)

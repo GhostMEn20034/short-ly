@@ -33,7 +33,7 @@ from src.services.orchestration.shortened_url.url_delete_abstract import Abstrac
 
 router = APIRouter(
     prefix='/urls',
-    tags=['shortened-url'],
+    tags=['shortened-urls'],
 )
 
 

@@ -1,10 +1,13 @@
+from typing import Sequence, Tuple
 from fastapi import HTTPException, status
 
 from .abstract_qr_code_service import AbstractQRCodeService
 from src.models.user import User
 from src.models.qr_code import QRCode
 from src.models.shortened_url import ShortenedUrl
+from src.schemes.pagination import PaginationParams, PaginationResponse
 from src.schemes.qr_code.request_bodies.create import CreateQRCodeSchema
+from src.schemes.qr_code.request_bodies.update import UpdateQRCode, UpdateQRCodeCustomization
 from src.repositories.unit_of_work.abstract import AbstractUnitOfWork
 from src.repositories.qr_code.abstract import AbstractQRCodeRepository
 from src.utils.error_utils import generate_error_response
@@ -45,12 +48,25 @@ class QRCodeService(AbstractQRCodeService):
 
         return qr_code_to_create
 
+    async def get_qr_codes_with_links(self, user: User, pagination_params: PaginationParams) \
+            -> Tuple[Sequence[QRCode], PaginationResponse]:
+        qr_codes, total_count = await self._qr_code_repository.get_paginated_list_of_qr_codes_with_joined_links(
+            user,
+            pagination_params,
+        )
+
+        total_pages = pagination_params.get_total_pages(total_count)
+
+        pagination_response = PaginationResponse(
+            current_page=pagination_params.page,
+            page_size=pagination_params.page_size,
+            total_pages=total_pages,
+            total_items=total_count,
+        )
+
+        return qr_codes, pagination_response
+
     async def get_qr_code_with_link(self, qr_code_id: int, user: User) -> QRCode:
-        """
-        :param qr_code_id: The ID of the QR code the user want to retrieve.
-        :param user: The user whose QR code is to be retrieved.
-        :return: QR code and related link
-        """
         qr_code = await self._qr_code_repository.get_by_id_with_joined_link(qr_code_id)
 
         if not qr_code:
@@ -64,3 +80,48 @@ class QRCodeService(AbstractQRCodeService):
 
         return qr_code
 
+    async def update_qr_code(self, qr_code_id: int, user: User,
+                             data_to_update: UpdateQRCode | UpdateQRCodeCustomization) -> QRCode:
+        qr_code = await self._qr_code_repository.get_by_id(qr_code_id)
+        if not qr_code:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+        if user.id != qr_code.user_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You are not the owner of this QR Code"
+            )
+
+        self.__apply_changes_to_qr_code(qr_code, data_to_update)
+        updated_qr_code = await self._qr_code_repository.update(qr_code)
+        await self._uow.commit()
+
+        return updated_qr_code
+
+    async def delete_qr_code(self, qr_code_id: int, user: User) -> None:
+        qr_code = await self._qr_code_repository.get_by_id(qr_code_id)
+        if not qr_code:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+        if user.id != qr_code.user_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You are not the owner of this QR Code"
+            )
+
+        await self._qr_code_repository.delete(qr_code)
+        await self._uow.commit()
+
+    # Utility methods --------------------------------------------------------------------------------------------------
+
+    @staticmethod
+    def __apply_changes_to_qr_code(qr_code: QRCode,
+                                   data_to_update: UpdateQRCode | UpdateQRCodeCustomization):
+        if isinstance(data_to_update, UpdateQRCode):
+            qr_code.title = data_to_update.title
+        elif isinstance(data_to_update, UpdateQRCodeCustomization):
+            qr_code.image = str(data_to_update.image) if data_to_update.image is not None else None
+            qr_code.customization = data_to_update.customization
+        else:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                                detail="Invalid request body")

@@ -22,8 +22,7 @@ class URLRepositorySQL(GenericRepositoryImplementation[ShortenedUrl], AbstractUR
 
     async def get_paginated_url_list(self, user_id: int, datetime_range: DatetimeRange,
                                      pagination_params: PaginationParams) -> Tuple[Sequence[ShortenedUrl], int]:
-        offset = (pagination_params.page - 1) * pagination_params.page_size
-        limit = pagination_params.page_size
+        offset, limit = pagination_params.get_offset_and_limit()
 
         stmt = (
             select(
@@ -57,6 +56,7 @@ class URLRepositorySQL(GenericRepositoryImplementation[ShortenedUrl], AbstractUR
             total_count = 0
 
         return paginated_items, total_count
+
     async def is_shortened_url_exist(self, short_code: str) -> bool:
         stmt = select(ShortenedUrl).where(ShortenedUrl.short_code == short_code)
         result = await self._session.exec(stmt)
