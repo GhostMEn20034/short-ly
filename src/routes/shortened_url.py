@@ -16,6 +16,7 @@ from src.dependencies.orchestration_services.url_update_orchestrator import get_
 from src.dependencies.orchestration_services.url_delete_orchestrator import get_url_delete_orchestrator
 # Models
 from src.models.user import User
+from src.schemes.qr_code.base import BaseQRCodeSchema
 # Schemes
 from src.schemes.shortened_url.response_bodies.retrieve import ShortenedUrlDetailsResponseSchema, \
     ShortenedUrlListResponseSchema
@@ -82,9 +83,10 @@ async def get_shortened_url_details(short_code: str,
                                     user: Annotated[User, Depends(get_current_user)],
                                     url_service: Annotated[AbstractURLService, Depends(get_url_service)],
                                     ):
-    shortened_url = await url_service.get_shortened_url_details(short_code, user)
+    shortened_url, qr_code = await url_service.get_shortened_url_details(short_code, user)
     return {
         "item": shortened_url,
+        "qr_code": BaseQRCodeSchema(**qr_code.model_dump()) if qr_code is not None else None
     }
 
 

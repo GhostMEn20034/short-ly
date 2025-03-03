@@ -14,6 +14,8 @@ from src.schemes.pagination import PaginationParams, PaginationResponse
 from src.repositories.shortened_url.abstract import AbstractURLRepositorySQL
 from src.utils.error_utils import generate_error_response
 from src.schemes.common import DatetimeRange
+from ...models import QRCode
+from ...schemes.shortened_url.response_bodies.retrieve import ShortenedUrlListItem
 
 
 class URLService(AbstractURLService):
@@ -100,8 +102,10 @@ class URLService(AbstractURLService):
         return created_shortened_url
 
     async def get_shortened_url_list(self, user: User, datetime_range: DatetimeRange, pagination_params: PaginationParams) \
-                                                                   -> Tuple[Sequence[ShortenedUrl], PaginationResponse]:
-        items, total_count = await self._url_repository.get_paginated_url_list(user.id, datetime_range, pagination_params)
+                                                           -> Tuple[Sequence[ShortenedUrlListItem], PaginationResponse]:
+        items, total_count = await self._url_repository.get_paginated_url_list_with_qr(
+            user.id, datetime_range, pagination_params
+        )
         total_pages = pagination_params.get_total_pages(total_count)
 
         pagination_response = PaginationResponse(
@@ -111,10 +115,11 @@ class URLService(AbstractURLService):
             total_items=total_count,
         )
 
+        items = [ShortenedUrlListItem(**item[0].model_dump(), link_id=item[1]) for item in items]
         return items, pagination_response
 
-    async def get_shortened_url_details(self, short_code: str, owner: User) -> Optional[ShortenedUrl]:
-        shortened_url = await self._url_repository.get_by_short_code(short_code)
+    async def get_shortened_url_details(self, short_code: str, owner: User) -> Tuple[ShortenedUrl, Optional[QRCode]]:
+        shortened_url, qr_code = await self._url_repository.get_by_short_code_with_joined_qr_code(short_code)
         if not shortened_url:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
@@ -124,7 +129,7 @@ class URLService(AbstractURLService):
                 detail="You are not the owner of this shortened url"
             )
 
-        return shortened_url
+        return shortened_url, qr_code
 
     async def get_long_url(self, short_code: str) -> HttpUrl:
         shortened_url = await self._url_repository.get_by_short_code(short_code)

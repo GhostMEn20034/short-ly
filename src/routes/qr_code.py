@@ -23,6 +23,7 @@ from src.schemes.qr_code.base import BaseQRCodeSchema
 from src.schemes.qr_code.response_bodies.details import QRCodeDetailsResponse
 from src.schemes.qr_code.response_bodies.list import QRCodeListResponse
 
+
 router = APIRouter(
     prefix='/qr-codes',
     tags=['qr-codes'],
