@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Query
 
 from docs.open_api_specs.routes.qr_code import (
     create_qr_code,
@@ -11,6 +11,7 @@ from docs.open_api_specs.routes.qr_code import (
 from src.dependencies.auth.get_user import get_current_user
 from src.dependencies.services.qr_code_service import get_qr_code_service
 from src.dependencies.orchestration_services.qr_code_creation_orchestrator import get_qr_code_creation_orchestrator
+from src.schemes.common import DatetimeRange
 from src.schemes.pagination import PaginationParams
 from src.schemes.qr_code.request_bodies.update import UpdateQRCode, UpdateQRCodeCustomization
 from src.schemes.qr_code.response_bodies.update import UpdateQRCodeResponseBody
@@ -22,7 +23,6 @@ from src.schemes.qr_code.response_bodies.create import CreateQRCodeResponse
 from src.schemes.qr_code.base import BaseQRCodeSchema
 from src.schemes.qr_code.response_bodies.details import QRCodeDetailsResponse
 from src.schemes.qr_code.response_bodies.list import QRCodeListResponse
-
 
 router = APIRouter(
     prefix='/qr-codes',
@@ -45,10 +45,15 @@ async def create_qr_code(
 @router.get("/", response_model=QRCodeListResponse, **get_qr_code_list.specs)
 async def get_qr_code_list(
         pagination_params: Annotated[PaginationParams, Depends(PaginationParams)],
+        datetime_range_params: Annotated[DatetimeRange, Query()],
         user: Annotated[User, Depends(get_current_user)],
         qr_code_service: Annotated[AbstractQRCodeService, Depends(get_qr_code_service)],
 ):
-    items, pagination_response = await qr_code_service.get_qr_codes_with_links(user, pagination_params)
+    items, pagination_response = await qr_code_service.get_qr_codes_with_links(
+        user,
+        datetime_range_params,
+        pagination_params,
+    )
     return {
         "items": items,
         "pagination": pagination_response,

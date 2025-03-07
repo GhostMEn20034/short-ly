@@ -115,7 +115,7 @@ class URLService(AbstractURLService):
             total_items=total_count,
         )
 
-        items = [ShortenedUrlListItem(**item[0].model_dump(), link_id=item[1]) for item in items]
+        items = [ShortenedUrlListItem(**item[0].model_dump(), qr_code_id=item[1]) for item in items]
         return items, pagination_response
 
     async def get_shortened_url_details(self, short_code: str, owner: User) -> Tuple[ShortenedUrl, Optional[QRCode]]:

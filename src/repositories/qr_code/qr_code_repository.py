@@ -8,6 +8,7 @@ from src.models.qr_code import QRCode
 from src.models.shortened_url import ShortenedUrl
 from src.repositories.base.implementation import GenericRepositoryImplementation
 from src.repositories.qr_code.abstract import AbstractQRCodeRepository
+from src.schemes.common import DatetimeRange
 from src.schemes.pagination import PaginationParams
 
 
@@ -31,8 +32,10 @@ class QRCodeRepository(GenericRepositoryImplementation[QRCode], AbstractQRCodeRe
         qr_code.link = shortened_url
         return qr_code
 
-    async def get_paginated_list_of_qr_codes_with_joined_links(
-            self, user: User, pagination_params: PaginationParams) -> Tuple[Sequence[QRCode], int]:
+    async def get_paginated_list_of_qr_codes_with_joined_links(self, user: User, datetime_range: DatetimeRange,
+                                                               pagination_params: PaginationParams) -> Tuple[
+        Sequence[QRCode], int
+    ]:
         offset, limit = pagination_params.get_offset_and_limit()
 
         stmt = (
@@ -44,6 +47,13 @@ class QRCodeRepository(GenericRepositoryImplementation[QRCode], AbstractQRCodeRe
             .where(QRCode.user_id == user.id)
             .join(ShortenedUrl)
         )
+
+        if not datetime_range.are_both_dates_none():
+            stmt = stmt.where(
+                QRCode.created_at >= datetime_range.date_from,
+                QRCode.created_at <= datetime_range.date_to,
+            )
+
         # ORDER BY → OFFSET → LIMIT
         stmt = (
             stmt

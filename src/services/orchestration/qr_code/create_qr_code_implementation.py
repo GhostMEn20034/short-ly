@@ -1,8 +1,11 @@
+from fastapi import HTTPException, status
+
 from src.models.user import User
 from src.models.shortened_url import ShortenedUrl
 from src.models.qr_code import QRCode
 from src.repositories.unit_of_work.abstract import AbstractUnitOfWork
 from src.schemes.qr_code.request_bodies.create import CreateQRCodeRequestBody
+from src.utils.error_utils import generate_error_response
 from .create_qr_code_abstract import AbstractQRCodeCreationOrchestrator
 from src.services.shortened_url.abstract_url_service import AbstractURLService
 from src.services.qr_code.abstract_qr_code_service import AbstractQRCodeService
@@ -36,9 +39,23 @@ class QRCodeCreationOrchestrator(AbstractQRCodeCreationOrchestrator):
             self, create_qr_code_payload: CreateQRCodeRequestBody, creator: User) -> ShortenedUrl:
         shortened_url: ShortenedUrl
         if create_qr_code_payload.link_short_code is not None:
-            shortened_url = await self._url_service.get_shortened_url_details(
+            shortened_url, qr_code = await self._url_service.get_shortened_url_details(
                 create_qr_code_payload.link_short_code, creator
             )
+
+            if qr_code is not None:
+                error_details = generate_error_response(
+                    location=["body", "linkShortCode"],
+                    message="Unable to create a QR Code for the link",
+                    reason="There's a qr code for this link already",
+                    input_value=create_qr_code_payload.link_short_code,
+                    error_type="domain_error"
+                )
+
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=[error_details, ],
+                )
         else:
             shortened_url = await self._url_service.create_shortened_url(create_qr_code_payload.link_to_create, creator)
 

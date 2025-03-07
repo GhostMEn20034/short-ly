@@ -11,6 +11,7 @@ from src.schemes.qr_code.request_bodies.update import UpdateQRCode, UpdateQRCode
 from src.repositories.unit_of_work.abstract import AbstractUnitOfWork
 from src.repositories.qr_code.abstract import AbstractQRCodeRepository
 from src.utils.error_utils import generate_error_response
+from ...schemes.common import DatetimeRange
 
 
 class QRCodeService(AbstractQRCodeService):
@@ -48,10 +49,11 @@ class QRCodeService(AbstractQRCodeService):
 
         return qr_code_to_create
 
-    async def get_qr_codes_with_links(self, user: User, pagination_params: PaginationParams) \
+    async def get_qr_codes_with_links(self, user: User, datetime_range: DatetimeRange, pagination_params: PaginationParams) \
             -> Tuple[Sequence[QRCode], PaginationResponse]:
         qr_codes, total_count = await self._qr_code_repository.get_paginated_list_of_qr_codes_with_joined_links(
             user,
+            datetime_range,
             pagination_params,
         )
 

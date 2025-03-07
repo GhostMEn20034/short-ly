@@ -4,6 +4,7 @@ from typing import Sequence, Tuple
 from src.models.user import User
 from src.models.shortened_url import ShortenedUrl
 from src.models.qr_code import QRCode
+from src.schemes.common import DatetimeRange
 from src.schemes.pagination import PaginationParams, PaginationResponse
 from src.schemes.qr_code.request_bodies.create import CreateQRCodeSchema
 from src.schemes.qr_code.request_bodies.update import UpdateQRCode, UpdateQRCodeCustomization
@@ -22,10 +23,11 @@ class AbstractQRCodeService(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    async def get_qr_codes_with_links(self, user: User, pagination_params: PaginationParams)  \
+    async def get_qr_codes_with_links(self, user: User, datetime_range: DatetimeRange, pagination_params: PaginationParams)  \
                                                                          -> Tuple[Sequence[QRCode], PaginationResponse]:
         """
         :param user: The user who wants to retrieve his QR codes.
+        :param datetime_range: Datetime range over which to retrieve QR codes.
         :param pagination_params: pagination parameters (page size, page number, etc.)
         :return: Sequence of user's QR Codes
         """

@@ -44,6 +44,7 @@ class URLRepositorySQL(GenericRepositoryImplementation[ShortenedUrl], AbstractUR
             )
             .where(ShortenedUrl.user_id == user_id)
         )
+
         if not datetime_range.are_both_dates_none():
             stmt = stmt.where(
                 ShortenedUrl.created_at >= datetime_range.date_from,
