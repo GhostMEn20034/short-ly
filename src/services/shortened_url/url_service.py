@@ -10,12 +10,12 @@ from src.services.short_code_generator.abstract import AbstractShortCodeGenerato
 from src.core.exceptions.shortened_url import MaxRetriesExceeded
 from src.models.shortened_url import ShortenedUrl
 from src.models.user import User
+from src.models.qr_code import QRCode
 from src.schemes.pagination import PaginationParams, PaginationResponse
 from src.repositories.shortened_url.abstract import AbstractURLRepositorySQL
 from src.utils.error_utils import generate_error_response
 from src.schemes.common import DatetimeRange
-from ...models import QRCode
-from ...schemes.shortened_url.response_bodies.retrieve import ShortenedUrlListItem
+from src.schemes.shortened_url.response_bodies.retrieve import ShortenedUrlListItem
 
 
 class URLService(AbstractURLService):

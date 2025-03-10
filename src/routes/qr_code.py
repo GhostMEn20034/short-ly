@@ -80,11 +80,11 @@ async def update_qr_code(
     updated_qr_code = await qr_code_service.update_qr_code(qr_code_id, user, data_to_update)
     return {"updated_item": updated_qr_code}
 
-
-@router.delete('/{qr_code_id}', status_code=status.HTTP_204_NO_CONTENT, **delete_qr_code.specs)
-async def delete_qr_code(
-        qr_code_id: int,
-        user: Annotated[User, Depends(get_current_user)],
-        qr_code_service: Annotated[AbstractQRCodeService, Depends(get_qr_code_service)],
-):
-    await qr_code_service.delete_qr_code(qr_code_id, user)
+# Currently the app don't need to have an ability to delete qr codes directly
+# @router.delete('/{qr_code_id}', status_code=status.HTTP_204_NO_CONTENT, **delete_qr_code.specs)
+# async def delete_qr_code(
+#         qr_code_id: int,
+#         user: Annotated[User, Depends(get_current_user)],
+#         qr_code_service: Annotated[AbstractQRCodeService, Depends(get_qr_code_service)],
+# ):
+#     await qr_code_service.delete_qr_code(qr_code_id, user)

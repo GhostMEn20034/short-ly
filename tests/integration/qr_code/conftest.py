@@ -2,6 +2,7 @@ from typing import List
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from src.models.qr_code import QRCode
 from src.models.shortened_url import ShortenedUrl
 from src.models.user import User
 
@@ -44,7 +45,7 @@ async def prepopulated_url_for_second_user(async_db: AsyncSession, second_user: 
         friendly_name="Some wierd URL",
         is_short_code_custom=True,
         short_code="wierd-url",
-        long_url="https://www.twitch.tv/",
+        long_url="https://weirdo.com/",
         user_id=second_user.id,
     )
 
@@ -52,3 +53,48 @@ async def prepopulated_url_for_second_user(async_db: AsyncSession, second_user: 
     await async_db.commit()
 
     return some_url
+
+
+@pytest.fixture(scope='function')
+async def prepopulated_qr_codes_for_first_user(
+        async_db: AsyncSession, prepopulated_urls: List[ShortenedUrl], user: User,
+) -> List[QRCode]:
+    qr_code_to_twitch = QRCode(
+        title="QR Code to the twitch.tv",
+        image=None,
+        customization={"hello": "world", "margin": 5},
+        user_id=user.id,
+        link_id=prepopulated_urls[0].id,
+    )
+
+    qr_code_to_youtube = QRCode(
+        title="QR Code to the youtube.com",
+        image=None,
+        customization={"hello": "world", "margin": 5},
+        user_id=user.id,
+        link_id=prepopulated_urls[1].id,
+    )
+
+    async_db.add(qr_code_to_twitch)
+    async_db.add(qr_code_to_youtube)
+
+    await async_db.commit()
+    return [qr_code_to_twitch, qr_code_to_youtube]
+
+
+@pytest.fixture(scope='function')
+async def prepopulated_qr_codes_for_second_user(
+        async_db: AsyncSession, prepopulated_url_for_second_user: ShortenedUrl, second_user: User,
+) -> List[QRCode]:
+    qr_code_to_weird_url = QRCode(
+        title="QR Code to the weird url",
+        image=None,
+        customization={"hello": "world", "margin": 5},
+        user_id=second_user.id,
+        link_id=prepopulated_url_for_second_user.id,
+    )
+
+    async_db.add(qr_code_to_weird_url)
+
+    await async_db.commit()
+    return [qr_code_to_weird_url]

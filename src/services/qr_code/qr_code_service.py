@@ -11,7 +11,7 @@ from src.schemes.qr_code.request_bodies.update import UpdateQRCode, UpdateQRCode
 from src.repositories.unit_of_work.abstract import AbstractUnitOfWork
 from src.repositories.qr_code.abstract import AbstractQRCodeRepository
 from src.utils.error_utils import generate_error_response
-from ...schemes.common import DatetimeRange
+from src.schemes.common import DatetimeRange
 
 
 class QRCodeService(AbstractQRCodeService):
