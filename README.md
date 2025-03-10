@@ -8,7 +8,7 @@
 - [x] Create, Read, Update, Delete Shortened URL
 - [x] Custom short codes for shortened URLs
 - [x] A public API that redirects to a long URL using a short code.
-- [ ] QR codes with encoded shortened URLs
+- [x] Customizable QR codes
 - [ ] Analytics
   - [ ] Top performing Date ( The date when the user's urls had the most clicks and scans ) 
   - [ ] Clicks + scans by device
