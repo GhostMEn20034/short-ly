@@ -1,14 +1,29 @@
 # short.ly
 
 # Features
-- [x] User signup
-- [x] Auth
-- [x] Create, read, update user's information
-- [x] Password Change
-- [x] Create, Read, Update, Delete Shortened URL
-- [x] Custom short codes for shortened URLs
-- [x] A public API that redirects to a long URL using a short code.
-- [x] Customizable QR codes
+- [x] Users
+  - [x] Signup
+  - [x] Auth
+  - [x] Create, read, update user's information
+  - [x] Password Change
+- [x] Links
+  - [x] Create, Read, Update, Delete Shortened URL
+  - [x] Custom short codes for shortened URLs
+  - [x] A public API that redirects to a long URL using a short code.
+  - [ ] Send each URL visit to Analytical DB (It will be the same DB for simplicity, data will be sent in asynchronous way using RabbitMQ to have a low latency) 
+- [x] QR codes
+    - [x] CRUD for the QR code entity
+    - [x] QR Code customization
+      - [x] Background color change
+      - [x] Dots color change
+      - [x] Dots pattern customization
+      - [x] Corners pattern customization
+      - [x] Ability to add a logo
+    - [x] Download a QR code in different formats
+      - [x] PNG
+      - [x] JPEG
+      - [x] SVG
+      - [x] WEBP
 - [ ] Analytics
   - [ ] Top performing Date ( The date when the user's urls had the most clicks and scans ) 
   - [ ] Clicks + scans by device
